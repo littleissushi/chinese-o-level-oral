@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>口试通 — 中四高华口试备考</title>
+<script src="data.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #fef6f0 0%, #fdeee5 100%);
+    color: #2d2a26;
+    min-height: 100vh;
+  }
+  header {
+    padding: 20px 16px 12px;
+    text-align: center;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #c0392b;
+  }
+  header p {
+    margin: 4px 0 0;
+    color: #8a8278;
+    font-size: 0.85rem;
+  }
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin: 10px 0 4px;
+    font-size: 0.82rem;
+    color: #6b6358;
+  }
+  .stats-bar b { color: #c0392b; }
+
+  .controls {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 16px 8px;
+  }
+  .topic-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  .topic-chip {
+    padding: 5px 12px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid #e8ddd2;
+    font-size: 0.78rem;
+    cursor: pointer;
+    color: #6b6358;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .topic-chip:hover { border-color: #e0a585; }
+  .topic-chip.active {
+    background: #c0392b;
+    color: #fff;
+    border-color: #c0392b;
+  }
+
+  .mode-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .mode-btn {
+    padding: 6px 14px;
+    border-radius: 10px;
+    border: 1px solid #e8ddd2;
+    background: #fff;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: #6b6358;
+  }
+  .mode-btn.active {
+    background: #2d2a26;
+    color: #fff;
+    border-color: #2d2a26;
+  }
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 10px 16px 60px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 6px 24px rgba(190, 110, 70, 0.12);
+    padding: 26px 24px;
+    min-height: 280px;
+    position: relative;
+  }
+  .card-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    color: #c0392b;
+    background: #fdecea;
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  .card-question {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.6;
+    color: #2d2a26;
+    margin-bottom: 18px;
+  }
+  .prompt-hint {
+    font-size: 0.85rem;
+    color: #a89c8c;
+    margin-bottom: 18px;
+    font-style: italic;
+  }
+  .reveal-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: #c0392b;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .reveal-btn:hover { background: #a8332a; }
+
+  .answer-block { display: none; animation: fadeIn 0.3s; }
+  .answer-block.show { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: translateY(0);} }
+
+  .section-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #8a8278;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 16px 0 6px;
+  }
+  ul.points { margin: 0; padding-left: 20px; }
+  ul.points li { margin-bottom: 7px; line-height: 1.55; font-size: 0.95rem; }
+
+  .vocab-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .vocab-pill {
+    background: #f4ede2;
+    color: #7a5c3e;
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 0.83rem;
+  }
+
+  .sentence-block {
+    background: #fdf8f1;
+    border-left: 3px solid #d9a26a;
+    padding: 8px 12px;
+    margin-top: 6px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .self-rate {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+  }
+  .self-rate button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.88rem;
+    cursor: pointer;
+    color: #fff;
+  }
+  .rate-bad { background: #c0392b; }
+  .rate-ok { background: #d9a534; }
+  .rate-good { background: #3a9d6b; }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    gap: 10px;
+  }
+  .nav-btn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1px solid #e8ddd2;
+    background: #fff;
+    color: #6b6358;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .nav-btn:hover { border-color: #c0392b; color: #c0392b; }
+
+  .empty-state {
+    text-align: center;
+    color: #a89c8c;
+    padding: 60px 20px;
+  }
+
+  .timer-row {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    color: #a89c8c;
+  }
+  #timerDisplay { font-weight: 700; color: #c0392b; }
+
+  .blank-sentence {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: #2d2a26;
+    margin-bottom: 10px;
+  }
+  .blank-hint {
+    font-size: 0.85rem;
+    color: #a89c8c;
+    margin-bottom: 18px;
+  }
+  .blank-answer {
+    background: #f4ede2;
+    color: #7a5c3e;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>口试通 🎤</h1>
+  <p>2026 中四高级华文 — 口试话题问答训练</p>
+</header>
+
+<div class="stats-bar">
+  <span>题库总数：<b id="totalCount">0</b></span>
+  <span>已练习：<b id="practicedCount">0</b></span>
+  <span>掌握良好：<b id="goodCount">0</b></span>
+</div>
+
+<div class="controls">
+  <div class="mode-row">
+    <button class="mode-btn active" data-mode="all">全部题目</button>
+    <button class="mode-btn" data-mode="weak">只练弱项</button>
+    <button class="mode-btn" data-mode="random">随机顺序</button>
+    <button class="mode-btn" data-mode="blanks">中二填空题</button>
+  </div>
+  <div class="topic-filter" id="topicFilter"></div>
+</div>
+
+<main>
+  <div class="timer-row">
+    建议先口头作答 30-60 秒，再点击查看要点 ⏱ <span id="timerDisplay">00:00</span>
+  </div>
+  <div class="card" id="card">
+    <!-- populated by JS -->
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn" id="prevBtn">← 上一题</button>
+    <span id="progressLabel" style="align-self:center;color:#a89c8c;font-size:0.85rem;"></span>
+    <button class="nav-btn" id="nextBtn">下一题 →</button>
+  </div>
+</main>
+
+<script>
+const STORAGE_KEY = "oral_exam_progress_v1";
+let progress = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+
+function saveProgress() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+}
+
+// assign stable IDs
+CARDS.forEach((c, i) => c.id = i);
+BLANKS.forEach((b, i) => b.id = "blank-" + i);
+
+let activeTopic = "全部";
+let mode = "all";
+let deck = [];
+let currentIndex = 0;
+let revealed = false;
+let timerInterval = null;
+let timerSeconds = 0;
+
+function buildTopicFilter() {
+  const el = document.getElementById("topicFilter");
+  el.innerHTML = "";
+  TOPICS.forEach(t => {
+    const chip = document.createElement("div");
+    chip.className = "topic-chip" + (t === activeTopic ? " active" : "");
+    chip.textContent = t;
+    chip.onclick = () => { activeTopic = t; buildTopicFilter(); buildDeck(); };
+    el.appendChild(chip);
+  });
+}
+
+function buildDeck() {
+  if (mode === "blanks") {
+    let pool = BLANKS.filter(b => activeTopic === "全部" || b.topic === activeTopic);
+    deck = pool;
+    currentIndex = 0;
+    renderBlank();
+    updateStats();
+    return;
+  }
+  let pool = CARDS.filter(c => activeTopic === "全部" || c.topic === activeTopic);
+  if (mode === "weak") {
+    pool = pool.filter(c => {
+      const p = progress[c.id];
+      return !p || p.rating === "bad" || p.rating === "ok";
+    });
+  }
+  if (mode === "random") {
+    pool = [...pool].sort(() => Math.random() - 0.5);
+  }
+  deck = pool;
+  currentIndex = 0;
+  renderCard();
+  updateStats();
+}
+
+function startTimer() {
+  stopTimer();
+  timerSeconds = 0;
+  document.getElementById("timerDisplay").textContent = "00:00";
+  timerInterval = setInterval(() => {
+    timerSeconds++;
+    const m = String(Math.floor(timerSeconds / 60)).padStart(2, "0");
+    const s = String(timerSeconds % 60).padStart(2, "0");
+    document.getElementById("timerDisplay").textContent = `${m}:${s}`;
+  }, 1000);
+}
+function stopTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+}
+
+function renderCard() {
+  const cardEl = document.getElementById("card");
+  const progressLabel = document.getElementById("progressLabel");
+  revealed = false;
+  startTimer();
+
+  if (deck.length === 0) {
+    cardEl.innerHTML = `<div class="empty-state">这个分类暂无题目，换个话题试试吧 🙂</div>`;
+    progressLabel.textContent = "";
+    return;
+  }
+
+  const c = deck[currentIndex];
+  progressLabel.textContent = `${currentIndex + 1} / ${deck.length}`;
+
+  cardEl.innerHTML = `
+    <div class="card-tag">${c.unit} · ${c.topic}</div>
+    <div class="card-question">${c.question}</div>
+    <div class="prompt-hint">💡 大声说出你的答案，组织 3-4 个论点，再展开说明，最后给出立场或总结。</div>
+    <button class="reveal-btn" id="revealBtn">查看参考要点 / 词汇 / 好句</button>
+    <div class="answer-block" id="answerBlock">
+      <div class="section-label">参考论点</div>
+      <ul class="points">${c.points.map(p => `<li>${p}</li>`).join("")}</ul>
+
+      <div class="section-label">可用词汇 / 成语</div>
+      <div class="vocab-row">${c.vocab.map(v => `<span class="vocab-pill">${v}</span>`).join("")}</div>
+
+      ${c.sentences.length ? `
+        <div class="section-label">可直接引用好句</div>
+        ${c.sentences.map(s => `<div class="sentence-block">${s}</div>`).join("")}
+      ` : ""}
+
+      <div class="section-label">自我评估：刚才答得怎么样？</div>
+      <div class="self-rate">
+        <button class="rate-bad" data-rating="bad">😕 没想到要点</button>
+        <button class="rate-ok" data-rating="ok">🙂 部分想到</button>
+        <button class="rate-good" data-rating="good">😄 答得不错</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("revealBtn").onclick = () => {
+    revealed = true;
+    stopTimer();
+    document.getElementById("answerBlock").classList.add("show");
+    document.getElementById("revealBtn").style.display = "none";
+  };
+
+  cardEl.querySelectorAll(".self-rate button").forEach(btn => {
+    btn.onclick = () => {
+      progress[c.id] = { rating: btn.dataset.rating, ts: Date.now() };
+      saveProgress();
+      updateStats();
+      goNext();
+    };
+  });
+}
+
+function renderBlank() {
+  const cardEl = document.getElementById("card");
+  const progressLabel = document.getElementById("progressLabel");
+  revealed = false;
+  startTimer();
+
+  if (deck.length === 0) {
+    cardEl.innerHTML = `<div class="empty-state">这个分类暂无填空题，换个话题试试吧 🙂</div>`;
+    progressLabel.textContent = "";
+    return;
+  }
+
+  const b = deck[currentIndex];
+  progressLabel.textContent = `${currentIndex + 1} / ${deck.length}`;
+
+  cardEl.innerHTML = `
+    <div class="card-tag">${b.unit} · ${b.topic} · 填空题</div>
+    <div class="blank-sentence">${b.sentence}</div>
+    <div class="blank-hint">💡 提示：${b.hint}</div>
+    <button class="reveal-btn" id="revealBtn">查看答案</button>
+    <div class="answer-block" id="answerBlock">
+      <div class="section-label">参考答案</div>
+      <div class="blank-answer">${b.answer}</div>
+
+      <div class="section-label">自我评估：你写对了吗？</div>
+      <div class="self-rate">
+        <button class="rate-bad" data-rating="bad">😕 没写对</button>
+        <button class="rate-ok" data-rating="ok">🙂 部分对</button>
+        <button class="rate-good" data-rating="good">😄 写对了</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("revealBtn").onclick = () => {
+    revealed = true;
+    stopTimer();
+    document.getElementById("answerBlock").classList.add("show");
+    document.getElementById("revealBtn").style.display = "none";
+  };
+
+  cardEl.querySelectorAll(".self-rate button").forEach(btn => {
+    btn.onclick = () => {
+      progress[b.id] = { rating: btn.dataset.rating, ts: Date.now() };
+      saveProgress();
+      updateStats();
+      goNext();
+    };
+  });
+}
+
+function updateStats() {
+  document.getElementById("totalCount").textContent = mode === "blanks" ? BLANKS.length : CARDS.length;
+  const practiced = Object.keys(progress).length;
+  document.getElementById("practicedCount").textContent = practiced;
+  const good = Object.values(progress).filter(p => p.rating === "good").length;
+  document.getElementById("goodCount").textContent = good;
+}
+
+function goNext() {
+  if (deck.length === 0) return;
+  currentIndex = (currentIndex + 1) % deck.length;
+  mode === "blanks" ? renderBlank() : renderCard();
+}
+function goPrev() {
+  if (deck.length === 0) return;
+  currentIndex = (currentIndex - 1 + deck.length) % deck.length;
+  mode === "blanks" ? renderBlank() : renderCard();
+}
+
+document.getElementById("nextBtn").onclick = goNext;
+document.getElementById("prevBtn").onclick = goPrev;
+
+document.querySelectorAll(".mode-btn").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    mode = btn.dataset.mode;
+    buildDeck();
+  };
+});
+
+buildTopicFilter();
+buildDeck();
+</script>
+
+</body>
+</html>

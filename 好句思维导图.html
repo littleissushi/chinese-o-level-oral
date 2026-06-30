@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>口试好句思维导图 — 按主题分类</title>
+<script src="phrasemap.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: #fbfaf8;
+    color: #2d2a26;
+    min-height: 100vh;
+  }
+  header {
+    padding: 22px 16px 10px;
+    text-align: center;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.45rem;
+    color: #2d2a26;
+  }
+  header p {
+    margin: 4px 0 0;
+    color: #8a8278;
+    font-size: 0.82rem;
+  }
+
+  .search-box {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 14px 16px 8px;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #ddd2c4;
+    font-size: 0.95rem;
+    background: #fff;
+  }
+
+  .toolbar {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 16px 14px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .toolbar button {
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: 1px solid #ddd2c4;
+    background: #fff;
+    color: #6b6358;
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+  .toolbar button:hover { border-color: #999; }
+
+  .toc {
+    max-width: 920px;
+    margin: 0 auto 18px;
+    padding: 0 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+  }
+  .toc-chip {
+    font-size: 0.74rem;
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--c);
+    color: var(--c);
+    cursor: pointer;
+    background: #fff;
+    white-space: nowrap;
+  }
+  .toc-chip:hover { background: color-mix(in srgb, var(--c) 10%, white); }
+
+  main {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 16px 60px;
+  }
+
+  .topic-card {
+    margin-bottom: 18px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid #eee5d8;
+    background: #fff;
+    scroll-margin-top: 16px;
+  }
+  .topic-header {
+    padding: 16px 20px;
+    cursor: pointer;
+    border-left: 7px solid var(--tc);
+    background: color-mix(in srgb, var(--tc) 7%, white);
+  }
+  .topic-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .topic-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--tc);
+  }
+  .topic-unit-tag {
+    font-size: 0.72rem;
+    color: #a89c8c;
+  }
+  .topic-count {
+    font-size: 0.75rem;
+    color: #a89c8c;
+    margin-left: auto;
+  }
+  .topic-desc {
+    font-size: 0.84rem;
+    color: #7a7165;
+    margin-top: 4px;
+  }
+  .chevron {
+    transition: transform 0.2s;
+    color: var(--tc);
+    font-size: 0.85rem;
+    margin-left: 8px;
+  }
+  .topic-card.collapsed .chevron { transform: rotate(-90deg); }
+  .topic-card.collapsed .topic-body { display: none; }
+
+  .topic-body {
+    padding: 6px 20px 18px;
+  }
+
+  .outline-box {
+    background: #f6f3ee;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 8px 0 14px;
+  }
+  .outline-box ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .outline-box li {
+    font-size: 0.8rem;
+    color: #6b6358;
+    line-height: 1.55;
+    margin-bottom: 3px;
+  }
+
+  .sentence-list {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+    counter-reset: sentence-counter;
+  }
+  .sentence-list li {
+    counter-increment: sentence-counter;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 7px 0 7px 30px;
+    position: relative;
+    border-bottom: 1px solid #f5f0e8;
+  }
+  .sentence-list li:last-child { border-bottom: none; }
+  .sentence-list li::before {
+    content: counter(sentence-counter);
+    position: absolute;
+    left: 0;
+    top: 7px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--tc) 16%, white);
+    color: var(--tc);
+  }
+  .sentence-text {
+    flex: 1;
+    font-size: 1.02rem;
+    line-height: 1.85;
+    color: #2d2a26;
+  }
+  .sentence-list li.learned .sentence-text {
+    color: #b9b1a4;
+    text-decoration: line-through;
+  }
+  .sentence-list li.learned { opacity: 0.6; }
+
+  .sentence-btn {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid #e8ddd2;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b6358;
+    padding: 0;
+  }
+  .sentence-btn:hover { border-color: var(--tc); color: var(--tc); }
+  .speak-btn.speaking { background: var(--tc); color: #fff; border-color: var(--tc); }
+  .learn-btn.is-learned { background: #eef5e8; color: #4a8a3a; border-color: #b9dba3; }
+
+  .hidden { display: none !important; }
+  .learned-hidden-mode .sentence-list li.learned { display: none; }
+
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: #a89c8c;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>口试好句思维导图 🧠</h1>
+  <p>按主题排列（课程顺序）— 英文结构提纲 + 中文好句，跟着顺序练习成段表达</p>
+</header>
+
+<div class="search-box">
+  <input type="text" id="searchInput" placeholder="🔍 搜索关键词、成语或主题（如：电子烟、爱的表达）...">
+</div>
+
+<div class="toolbar">
+  <button id="expandAll">展开全部</button>
+  <button id="collapseAll">收起全部</button>
+  <button id="toggleLearned">隐藏已学会的句子</button>
+  <span id="learnedCount" style="align-self:center;color:#a89c8c;font-size:0.8rem;"></span>
+</div>
+
+<div class="toc" id="toc"></div>
+
+<main id="main"></main>
+
+<script>
+const LEARNED_KEY = "phrasemap_learned_v1";
+let learned = JSON.parse(localStorage.getItem(LEARNED_KEY) || "{}");
+let hideLearnedMode = JSON.parse(localStorage.getItem("phrasemap_hide_mode_v1") || "false");
+
+function saveLearned() {
+  localStorage.setItem(LEARNED_KEY, JSON.stringify(learned));
+}
+
+function sentenceId(ti, si) {
+  return ti + "-" + si;
+}
+
+function speak(text, btn) {
+  if (!("speechSynthesis" in window)) {
+    alert("您的浏览器不支持语音朗读功能。");
+    return;
+  }
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = "zh-CN";
+  utter.rate = 0.92;
+  const voices = window.speechSynthesis.getVoices();
+  const zhVoice = voices.find(v => v.lang === "zh-CN") || voices.find(v => v.lang && v.lang.startsWith("zh"));
+  if (zhVoice) utter.voice = zhVoice;
+
+  document.querySelectorAll(".speak-btn.speaking").forEach(b => b.classList.remove("speaking"));
+  btn.classList.add("speaking");
+  utter.onend = () => btn.classList.remove("speaking");
+  utter.onerror = () => btn.classList.remove("speaking");
+  window.speechSynthesis.speak(utter);
+}
+
+// Some browsers load voices asynchronously
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.onvoiceschanged = () => {};
+  window.speechSynthesis.getVoices();
+}
+
+function updateLearnedCount() {
+  const count = Object.values(learned).filter(Boolean).length;
+  document.getElementById("learnedCount").textContent = count > 0 ? `已学会：${count} 句` : "";
+}
+
+function renderToc() {
+  const toc = document.getElementById("toc");
+  toc.innerHTML = "";
+  PHRASE_MAP.forEach((t, ti) => {
+    const chip = document.createElement("div");
+    chip.className = "toc-chip";
+    chip.style.setProperty("--c", t.color);
+    chip.textContent = t.topic;
+    chip.onclick = () => {
+      const el = document.getElementById("topic-" + ti);
+      el.classList.remove("collapsed");
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    toc.appendChild(chip);
+  });
+}
+
+function renderMap() {
+  const main = document.getElementById("main");
+  main.innerHTML = "";
+
+  PHRASE_MAP.forEach((t, ti) => {
+    const card = document.createElement("div");
+    card.className = "topic-card";
+    card.id = "topic-" + ti;
+    card.style.setProperty("--tc", t.color);
+
+    const header = document.createElement("div");
+    header.className = "topic-header";
+    header.innerHTML = `
+      <div class="topic-title-row">
+        <span class="topic-title">${t.topic}</span>
+        <span class="topic-unit-tag">${t.unit}</span>
+        <span class="topic-count">${t.sentences.length} 句</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="topic-desc">${t.desc}</div>
+    `;
+    header.onclick = () => card.classList.toggle("collapsed");
+
+    const body = document.createElement("div");
+    body.className = "topic-body";
+
+    const outlineBox = document.createElement("div");
+    outlineBox.className = "outline-box";
+    outlineBox.innerHTML = `<ul>${t.outline.map(o => `<li>${o}</li>`).join("")}</ul>`;
+    body.appendChild(outlineBox);
+
+    const list = document.createElement("ol");
+    list.className = "sentence-list";
+    t.sentences.forEach((s, si) => {
+      const id = sentenceId(ti, si);
+      const li = document.createElement("li");
+      li.dataset.search = (t.topic + " " + s).toLowerCase();
+      li.dataset.id = id;
+      if (learned[id]) li.classList.add("learned");
+
+      const textSpan = document.createElement("span");
+      textSpan.className = "sentence-text";
+      textSpan.textContent = s;
+
+      const speakBtn = document.createElement("button");
+      speakBtn.className = "sentence-btn speak-btn";
+      speakBtn.title = "朗读这句话";
+      speakBtn.textContent = "🔊";
+      speakBtn.onclick = (e) => {
+        e.stopPropagation();
+        speak(s, speakBtn);
+      };
+
+      const learnBtn = document.createElement("button");
+      learnBtn.className = "sentence-btn learn-btn" + (learned[id] ? " is-learned" : "");
+      learnBtn.title = learned[id] ? "标记为未学会" : "标记为已学会（隐藏）";
+      learnBtn.textContent = learned[id] ? "✓" : "👁";
+      learnBtn.onclick = (e) => {
+        e.stopPropagation();
+        learned[id] = !learned[id];
+        saveLearned();
+        li.classList.toggle("learned", learned[id]);
+        learnBtn.classList.toggle("is-learned", learned[id]);
+        learnBtn.textContent = learned[id] ? "✓" : "👁";
+        learnBtn.title = learned[id] ? "标记为未学会" : "标记为已学会（隐藏）";
+        updateLearnedCount();
+      };
+
+      li.appendChild(textSpan);
+      li.appendChild(speakBtn);
+      li.appendChild(learnBtn);
+      list.appendChild(li);
+    });
+    body.appendChild(list);
+
+    card.appendChild(header);
+    card.appendChild(body);
+    main.appendChild(card);
+  });
+}
+
+function applySearch(query) {
+  const q = query.trim().toLowerCase();
+  const cards = document.querySelectorAll(".topic-card");
+  let anyVisible = false;
+
+  cards.forEach(card => {
+    const items = card.querySelectorAll(".sentence-list li");
+    let cardHasMatch = false;
+    items.forEach(itemEl => {
+      const matches = q === "" || itemEl.dataset.search.includes(q);
+      itemEl.classList.toggle("hidden", !matches);
+      if (matches) cardHasMatch = true;
+    });
+    card.classList.toggle("hidden", !cardHasMatch);
+    if (cardHasMatch) {
+      anyVisible = true;
+      if (q !== "") card.classList.remove("collapsed");
+    }
+  });
+
+  let noResults = document.getElementById("noResults");
+  if (!anyVisible) {
+    if (!noResults) {
+      noResults = document.createElement("div");
+      noResults.id = "noResults";
+      noResults.className = "no-results";
+      noResults.textContent = "没有找到相关词句，换个关键词试试 🙂";
+      document.getElementById("main").appendChild(noResults);
+    }
+  } else if (noResults) {
+    noResults.remove();
+  }
+}
+
+function applyHideMode() {
+  document.body.classList.toggle("learned-hidden-mode", hideLearnedMode);
+  const btn = document.getElementById("toggleLearned");
+  btn.textContent = hideLearnedMode ? "显示已学会的句子" : "隐藏已学会的句子";
+}
+
+document.getElementById("searchInput").addEventListener("input", e => applySearch(e.target.value));
+document.getElementById("expandAll").onclick = () => document.querySelectorAll(".topic-card").forEach(c => c.classList.remove("collapsed"));
+document.getElementById("collapseAll").onclick = () => document.querySelectorAll(".topic-card").forEach(c => c.classList.add("collapsed"));
+document.getElementById("toggleLearned").onclick = () => {
+  hideLearnedMode = !hideLearnedMode;
+  localStorage.setItem("phrasemap_hide_mode_v1", JSON.stringify(hideLearnedMode));
+  applyHideMode();
+};
+
+renderToc();
+renderMap();
+updateLearnedCount();
+applyHideMode();
+</script>
+
+</body>
+</html>
